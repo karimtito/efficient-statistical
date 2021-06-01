@@ -3,6 +3,7 @@ import pandas as pd
 import time
 
 import os
+import sys, getopt
 
 from utils import normal_kernel
 from acasxu_utils import onnx_to_model, read_acasxu_input_file, input_transformer_acasxu
@@ -11,21 +12,49 @@ from sampling_tools import ImportanceSplittingLp
 import envir_def
 DIM = 5
 
-LOG_DIR = EFFICIENT_STAT_PATH+"logs/acasxu/"
+LOG_DIR = envir_def.EFFICIENT_STAT_PATH+"logs/acasxu/"
+nets_path = envir_def.EFFICIENT_STAT_PATH+"data/acasxu/nets/"
 acasxu_scores = [acasxu_prop1_score, acasxu_prop2_score, acasxu_prop3_score, acasxu_prop4_score, acasxu_prop5_score]
 gaussian_gen = lambda N: np.random.normal(size =(N,DIM))
 round_str = lambda x: '{:.3e}'.format(x)
 
-
 n_repeat = 10
-N=2
+N= 2
 p_c=10**-50
 T=40
+alpha=1-10**-3
+
+if __name__ == "__main__":
+    argv = sys.argv[1:]
+    try:
+        opts, _ = getopt.getopt(argv,"n:N:T:p:a:",["n_repeat=","p_c=","T=","N=","alpha="])
+
+    except getopt.GetoptError as err:
+        # print help information and exit:
+        print(err)  # will print something like "option -a not recognized"
+        
+        sys.exit(2)
+    for opt, arg in opts:
+        print(f"opt:{opt}, arg:{arg}")
+        if opt in ('-n', "--n_repeat"):
+          n_repeat= int(arg)
+        elif opt in ("-N", "--N"):
+            N = int(arg)
+        elif opt in ("-a", "--alpha"):
+            alpha= arg
+        elif opt in ("-T", "--T"):
+            T= int(arg)
+        elif opt in ("-p", "--p_c"):
+            p_c= float(arg)
+
 name_method = f"Last Particle|N={N}|p_c={p_c}|T={T}"
-p_c_str = str(p_c)
-alpha=1-10**-4
-net_prop_results = []
-nets_path = EFFICIENT_STAT_PATH+"data/acasxu/nets/"
+print(f"N={N}, n={n_repeat}, T ={T}")
+
+print(type(T)) 
+
+sys.exit(0)
+net_prop_results = [] 
+
 count = 0
 TOTAL_RUN = n_repeat*45*5
 avg_=0
@@ -48,7 +77,7 @@ for net_name in os.listdir(nets_path):
             local_result = [t1, s_out['Cert'], s_out['Calls'],p_est]
             aggr_results.append(local_result)
             avg_ = (count-1)/count*avg_ + (1/count)*t1
-            print(f'Run {i} on network {clean_name} for property {j} is over (RUN {count}/{TOTAL_RUN}), Avg. time per run:{avg_}) ')
+            print(f'Run {i+1} on network {clean_name} for property {j} is over (RUN {count}/{TOTAL_RUN}, Avg. time per run:{avg_}) ')
 
         aggr_results = np.array(aggr_results)
         p_estimates = aggr_results[:,-1]
@@ -71,3 +100,5 @@ method_clean_name = f"LP_N_{N}_pc_{-int(np.log10(p_c))}_T_{T}_ACASXU"
 # with open(save_file, "w+") as file:
 #     lp_acasxu_results.to_csv(file)
 lp_acasxu_results = pd.read_csv(save_file, index_col=[0])
+
+

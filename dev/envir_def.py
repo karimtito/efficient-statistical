@@ -12,10 +12,8 @@ EFFICIENT_STAT_PATH = str(local_path.parent.absolute())+'/'
 # elif platform=="win32":
 #     command = "set EFFICIENT_STAT_HOME"
 #     subprocess.run(command.split(''))
-print(EFFICIENT_STAT_PATH)
+print(f"Local path to efficient-statistical clone: {EFFICIENT_STAT_PATH}")
 DATA_DIR = EFFICIENT_STAT_PATH + 'data/'
 NB_TEST_SAMPLES=100
-from time import sleep
-sleep(1)
 
 

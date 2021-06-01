@@ -1,41 +1,67 @@
-from dev.check_eran_acasxu_unnormalized import EFFICIENT_HOME
 import numpy as np
-import pandas as pd
-# import matplotlib.pyplot as plt
-# import matplotlib
 from time import time
-import scipy.stats as stat
-import sys 
 import tensorflow as tf
 from math import ceil
 import os
+import sys, getopt
 from utils import nn_score, graph_model_converter, input_transformer_eran, batch_normal_kernel
 from eran_net_reader import read_tf_net 
 from sampling_tools import ImportanceSplittingLpBatch
-import environment_def
-LOG_DIR = EFFICIENT_STAT_HOME+"logs/mnist/"
+from envir_def import EFFICIENT_STAT_PATH
+LOG_DIR = EFFICIENT_STAT_PATH+"logs/mnist/"
+DATA_DIR = EFFICIENT_STAT_PATH+"data/MNIST/"
+NETS_DIR = DATA_DIR+"test_nets/"
+DATA_PATH = DATA_DIR+"mnist.npz"
 
-NETS_DIR = EFFICIENT_STAT_HOME+"data/test_nets/"
 DIM = 784
 gaussian_gen = lambda N: np.random.normal(size =(N,DIM))
-print(f"Number GPU used: len(tf.config.list_physical_devices('GPU'))")
+print(f"Number GPU used: {len(tf.config.list_physical_devices('GPU'))}")
 
-(X_train, y_train), (X_test, y_test) = tf.keras.datasets.mnist.load_data()
+(X_train, y_train), (X_test, y_test) = tf.keras.datasets.mnist.load_data(path = DATA_PATH)
 flatten_mnist_tf = lambda x: x.astype(np.float64).reshape((x.shape[0],np.prod(x.shape[1:])))/np.float64(255)
 X_test_f = flatten_mnist_tf(X_test)
-
-
 
 n_rep = 10
 N=2
 p_c=10**-40
 T=50
-name_method = f"Last Particle|N={N}|p_c={p_c}|T={T}"
-
 alpha=1-10**-4
+epsilon_range = [0.1,0.2,0.3]
+if __name__ == "__main__":
+    argv = sys.argv[1:]
+    try:
+        opts, _ = getopt.getopt(argv,"n:N:T:p:a:",["n_repeat=","p_c=","T=","N=","alpha=","epsilon_range=","epsilon="])
+
+    except getopt.GetoptError as err:
+        # print help information and exit:
+        print(err)  # will print something like "option -a not recognized"
+        
+        sys.exit(2)
+    for opt, arg in opts:
+        print(f"opt:{opt}, arg:{arg}")
+        if opt in ('-n', "--n_repeat"):
+          n_repeat= int(arg)
+        elif opt in ("-N", "--N"):
+            N = int(arg)
+        elif opt in ("-a", "--alpha"):
+            alpha= arg
+        elif opt in ("-T", "--T"):
+            T= int(arg)
+        elif opt in ("-p", "--p_c"):
+            p_c= float(arg)
+        elif opt=="--epsilon_range":
+            epsilon_range = [float(e) for e in  arg.strip('[').strip(']').split(',')]
+        elif opt=="--epsilon":
+            epsilon_range = [float(arg)]
+
+
+name_method = f"Last Particle|N={N}|p_c={p_c}|T={T}"
+print(name_method)
+print(epsilon_range)
+sys.exit(0)
 net_eps_img_results = []
 count = 0
-epsilon_range = [0.1,0.2,0.3]
+
 TOTAL_RUN = n_rep*len(epsilon_range)*6
 avg_=0
 i=0
