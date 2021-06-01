@@ -1,22 +1,17 @@
-from dev.check_eran_acasxu_unnormalized import ERAN_PATH
 import numpy as np
 import pandas as pd
-# import matplotlib.pyplot as plt
-# import matplotlib
 import time
-import scipy.stats as stat
-import matplotlib.pyplot as plt
-import seaborn as sn
+
 import os
-import onnxruntime
+
 from utils import normal_kernel
 from acasxu_utils import onnx_to_model, read_acasxu_input_file, input_transformer_acasxu
-from utils import acasxu_prop1_score, acasxu_prop2_score, acasxu_prop3_score, acasxu_prop4_score, acasxu_prop5_score 
+from acasxu_utils import acasxu_prop1_score, acasxu_prop2_score, acasxu_prop3_score, acasxu_prop4_score, acasxu_prop5_score
 from sampling_tools import ImportanceSplittingLp
-import definitions 
+import envir_def
 DIM = 5
 
-LOG_DIR = "logs/acasxu/"
+LOG_DIR = EFFICIENT_STAT_PATH+"logs/acasxu/"
 acasxu_scores = [acasxu_prop1_score, acasxu_prop2_score, acasxu_prop3_score, acasxu_prop4_score, acasxu_prop5_score]
 gaussian_gen = lambda N: np.random.normal(size =(N,DIM))
 round_str = lambda x: '{:.3e}'.format(x)
@@ -24,18 +19,18 @@ round_str = lambda x: '{:.3e}'.format(x)
 
 n_repeat = 10
 N=2
-p_c=10**-150
-T=5
+p_c=10**-50
+T=40
 name_method = f"Last Particle|N={N}|p_c={p_c}|T={T}"
 p_c_str = str(p_c)
 alpha=1-10**-4
 net_prop_results = []
-dir_path = "../data/acasxu/nets/"
+nets_path = EFFICIENT_STAT_PATH+"data/acasxu/nets/"
 count = 0
 TOTAL_RUN = n_repeat*45*5
 avg_=0
-for net_name in os.listdir(dir_path):
-    net_file = dir_path+net_name
+for net_name in os.listdir(nets_path):
+    net_file = nets_path+net_name
     onnx_model = onnx_to_model(net_file)
     clean_name = net_name.split('.')[0]
     for j in range(1,6):
