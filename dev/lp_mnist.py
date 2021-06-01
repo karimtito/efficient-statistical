@@ -105,8 +105,8 @@ for net_name in os.listdir(NETS_DIR):
             count+=1
             print(f'Run {k} on network {model_name} for epsilon={epsilon} started... \n (RUN {count}/{TOTAL_RUN}, Avg. time per run:{avg_}) ')
             t0= time()
-            p_est, s_out = ImportanceSplittingLpBatch(gen =gaussian_gen, nb_system=nb_systems, s=1.5, kernel_b = batch_normal_kernel,h_big = total_score_big, h=total_score,N=N, tau=0, p_c=p_c, T=T,
-    alpha_test = 0.9999, verbose = 0,check_every=5, accept_ratio=0.25,  reject_thresh = 0.99, reject_forget_rate =0.9, gain_forget_rate=0.9, fast_d=3)
+            p_est, s_out = ImportanceSplittingLpBatch(gen =gaussian_gen, nb_system=nb_systems,N=N,  s=1.5, kernel_b = batch_normal_kernel,h_big = total_score_big, h=total_score,N=N, tau=0, p_c=p_c, T=T,
+    alpha_test = alpha , p_c = p_c, verbose = 0,check_every=5, accept_ratio=0.25,  reject_thresh = 0.99, reject_forget_rate =0.9, gain_forget_rate=0.9, fast_d=3)
             t1=time()-t0
             local_result = [t1, s_out['Cert'], s_out['Calls'],p_est]
             aggr_results.append(local_result)

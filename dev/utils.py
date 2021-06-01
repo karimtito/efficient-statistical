@@ -1,7 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
-import torch.nn as nn
-import numpy.linalg as LA 
 import scipy.stats as stat
 import tensorflow as tf
 
@@ -89,6 +86,13 @@ def input_transformer_eran(X, X_original, mean=0.0, std=0.0, eps=0.1,from_gaussi
     if quantization==True and std==0:
         res = np.floor(res*255)/255
     return res
+
+
+def input_transformer_gaussian(X,X_original,epsilon):
+    X = 255*(2*stat.norm.cdf(X)-1)
+    imgs = np.clip(X_original + epsilon*X.reshape(X_original.shape),a_min=0, a_max=255)
+    return imgs
+
 
 
 
