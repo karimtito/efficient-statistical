@@ -1,6 +1,7 @@
 import numpy as np
 from time import time
 import tensorflow as tf
+import pandas as pd
 from math import ceil
 import os
 import sys, getopt
@@ -58,7 +59,7 @@ if __name__ == "__main__":
 name_method = f"Last Particle|N={N}|p_c={p_c}|T={T}"
 print(name_method)
 print(epsilon_range)
-sys.exit(0)
+
 net_eps_img_results = []
 count = 0
 
@@ -125,5 +126,11 @@ for net_name in os.listdir(NETS_DIR):
         for l in range(nb_examples):
             net_eps_img_result = {'network name': model_name, 'epsilon':epsilon, 'Image index (MNIST Test)':true_indices[l], 'Original label':Y_test[l] , 'Compute time':t1/nb_examples, 'Certified': bool(int(s_out['Cert'][l])), 'method': name_method, 'Calls': int(s_out['Calls']/nb_examples), 'P_est': p_est[l], 'CI': s_out['CI_est'][l], 'Std P_est':std_pest[l], 'Computie time std':std_compute_time ,'Calls std': std_calls, 'Avg. Compute time':avg_compute_time/nb_examples,'Avg. number of calls':ceil(avg_calls/nb_examples), 'Frequency Certified': avg_cert[l],'Avg. P_est':avg_pest[l]}
             net_eps_img_results.append(net_eps_img_result)
+
+lp_mnist_results = pd.DataFrame(net_eps_img_results)
+save_file = LOG_DIR+f"LP_N_{N}_pc_{-int(np.log10(p_c))}_T_{T}_n_{n_repeat}_MNIST_results.csv"
+method_clean_name = f"LP_N_{N}_pc_{-int(np.log10(p_c))}_T_{T}"
+with open(save_file, "w+") as file:
+     lp_mnist_results.to_csv(file)
          
  

@@ -23,11 +23,12 @@ N= 2
 p_c=10**-50
 T=40
 alpha=1-10**-3
+index_properties = np.arange(1,6)
 
 if __name__ == "__main__":
     argv = sys.argv[1:]
     try:
-        opts, _ = getopt.getopt(argv,"n:N:T:p:a:",["n_repeat=","p_c=","T=","N=","alpha="])
+        opts, _ = getopt.getopt(argv,"n:N:T:p:a:",["n_repeat=","p_c=","T=","N=","alpha=","properties="])
 
     except getopt.GetoptError as err:
         # print help information and exit:
@@ -46,13 +47,14 @@ if __name__ == "__main__":
             T= int(arg)
         elif opt in ("-p", "--p_c"):
             p_c= float(arg)
+        elif opt=="--properties":
+            index_properties=[int(e) for e in  arg.strip('[').strip(']').split(',')]
+
 
 name_method = f"Last Particle|N={N}|p_c={p_c}|T={T}"
-print(f"N={N}, n={n_repeat}, T ={T}")
+print(f"Tested method: {name_method}")
 
-print(type(T)) 
 
-sys.exit(0)
 net_prop_results = [] 
 
 count = 0
@@ -62,7 +64,7 @@ for net_name in os.listdir(nets_path):
     net_file = nets_path+net_name
     onnx_model = onnx_to_model(net_file)
     clean_name = net_name.split('.')[0]
-    for j in range(1,6):
+    for j in index_properties:
         local_score = acasxu_scores[j-1]
         input_file = f'../data/acasxu/specs/acasxu_prop_{j}_input_prenormalized.txt'
         input_con= read_acasxu_input_file(input_file, verbose = 1)
@@ -97,8 +99,6 @@ lp_acasxu_results= pd.DataFrame(net_prop_results)
 
 save_file = LOG_DIR+f"LP_N_{N}_pc_{-int(np.log10(p_c))}_T_{T}_n_{n_repeat}_ACASXU_results.csv"
 method_clean_name = f"LP_N_{N}_pc_{-int(np.log10(p_c))}_T_{T}_ACASXU"
-# with open(save_file, "w+") as file:
-#     lp_acasxu_results.to_csv(file)
-lp_acasxu_results = pd.read_csv(save_file, index_col=[0])
-
+with open(save_file, "w+") as file:
+     lp_acasxu_results.to_csv(file)
 
