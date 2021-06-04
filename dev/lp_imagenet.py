@@ -161,8 +161,8 @@ for i in range(len(list_models)):
             count+=1
             print(f'Run {k} on network {model_name} for epsilon={epsilon} started... ')
             t0= time()
-            p_est, s_out = ImportanceSplittingLpBatch(gen =gaussian_gen, nb_system=nb_systems, s=1.5,d=DIM, kernel_b = batch_normal_kernel,h_big = total_score_big, h=total_score,N=N, tau=0, p_c=p_c, T=T,
-    alpha_test = alpha, verbose = 0,check_every=5, accept_ratio=0.25,  reject_thresh = 0.99, reject_forget_rate =0.9, gain_forget_rate=0.9, fast_d=3)
+            p_est, s_out = ImportanceSplittingLpBatch(gen =gaussian_gen, nb_system=nb_systems, s=1,d=DIM, kernel_b = batch_normal_kernel,h_big = total_score_big, h=total_score,N=N, tau=0, p_c=p_c, T=T,
+    alpha_test = alpha, verbose = 0,check_every=5, accept_ratio=0.1, decay=0.999, reject_thresh = 0.99, reject_forget_rate =0.9, gain_forget_rate=0.9, fast_d=3)
             t1=time()-t0
             local_result = [t1, s_out['Cert'], s_out['Calls'],p_est]
             aggr_results.append(local_result)

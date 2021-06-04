@@ -19,8 +19,10 @@ if __name__ == "__main__":
         elif opt=="--check_lp":
             check_lp = True if arg.lower() in ("true", "yes","y",'t') else False
 if check_lp:
-    command = f"python {EFFICIENT_STAT_PATH}dev/lp_mnist.py --n_repeat=10 --N=2 --T=40 --p_c=1e-50 --epsilon_range=[0.015,0.03,0.06,0.1]"
+    command = f"python {EFFICIENT_STAT_PATH}dev/lp_mnist.py --n_repeat=10 --N=2 --T=40 --p_c=1e-35 --epsilon_range=[0.015,0.03,0.06,0.1]"
     subprocess.run(command.split())
 if check_eran:
     command = f"python {EFFICIENT_STAT_PATH}dev/check_eran_mnist.py --properties=[1,2,3,4,5]"
+    subprocess.run(command.split())
+    command = f"python {EFFICIENT_STAT_PATH}dev/read_eran_mnist_results.py"
     subprocess.run(command.split())

@@ -2,14 +2,18 @@
 ## Requirements
 This code was tested on a Ubuntu 20.04 system with Python 3.7.9..
 The python essential requirements are TensorFlow (v2), numpy, scipy and pandas.
-To run experiments on the ACAS-Xu data set the onnx and onnxruntime libraries.
+To run experiments on the ACAS-Xu data set the onnx and onnxruntime libraries are also needed.
+All the explicit requirements are list in the requirements.txt and can be directly installed/check 
+using the pip 
 
-In addition to run 
+
 
 ## Runing the papers experiments 
 Implementation and experiments for the paper "Efficient Statistical Assessment of Neural Network Corruption Robustness"
 Experiment j of the paper can be run using the associated exp_5_{j}.py script. 
 By default, this will run both Last Particle and ERAN with pre-selected parameters used for the paper. It is also possible to only run the Last Particle or ERAN method using the check_eran and check_lp options.
+
+All the results are given as csv files (added to the logs) which can be aggregated, e.g. using pandas, to obtain averege results.
 
 ## Running differents experiments
 You can also run different experiments with the Last Particle algorithm using directly the scripts lp_acasxu.py, lp_mnist.py and lp_imagenet.py. You can select parameters by passing them as C-style options.
