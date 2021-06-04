@@ -13,7 +13,9 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 """
-""" This a slightly modified version of the ERAN net reader to accomodate inference by batches """
+
+
+""" This a slightly modified version of the ERAN (licence above) net reader to accomodate inference by batches """
 
 
 import tensorflow as tf
@@ -274,39 +276,3 @@ def read_tf_net(net_file, shape, is_trained_with_pytorch=False, batch_mode=False
 
 
 
-# import onnx
-# from onnx import optimizer
-
-# def find_node( model_, type_, name_ ) :
-#     l = list(filter( lambda x: x.name == name_, getattr(model_.graph,type_)))
-#     assert( len(l) == 1 )
-#     return l[ 0 ]
-
-# def fix_model( path_src_, path_dst_ ) :
-    
-#     #Load model from disk
-#     model = onnx.load(path_src_)
-    
-#     # Fix padded sequences
-#     padded_sequences = find_node(model,"input","padded_sequences")
-#     shape = padded_sequences.type.tensor_type.shape.dim
-#     shape[ 0 ].dim_param = "dim_param_0"  # Batch axis
-#     shape[ 2 ].dim_param = "dim_param_1"  # Sequence axis
-    
-#     # Fix lengths
-#     lengths = find_node(model,"input","lengths")
-#     shape = lengths.type.tensor_type.shape.dim
-#     shape[ 0 ].dim_param = "dim_param_2"  # Batch axis
-    
-#     # Fix output
-#     output = find_node(model,"output","output")
-#     shape = output.type.tensor_type.shape.dim
-#     shape[ 0 ].dim_param = "dim_param_3"  # Batch axis
-#     shape[ 1 ].dim_param = "dim_param_4"  # Sequence axis
-    
-#     # Tidy up
-#     onnx.checker.check_model(model)
-#     model = onnx.optimizer.optimize( model )
-    
-#     #Save the corrected model
-#     onnx.save( model, path_dst_ )

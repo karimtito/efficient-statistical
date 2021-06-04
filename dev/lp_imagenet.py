@@ -17,14 +17,13 @@ from utils import nn_score, input_transformer_gaussian, batch_normal_kernel
 from sampling_tools import ImportanceSplittingLpBatch
 import tensorflow as tf
 from math import ceil
-from math import floor
 import os
 import envir_def 
 import sys, getopt
 
 nb_samples = envir_def.NB_TEST_SAMPLES
-LOG_DIR = envir_def.EFFICIENT_STAT_PATH+"logs/imagenet/"
-DATA_PATH = envir_def.EFFICIENT_STAT_PATH+"data/imagenet/"
+LOG_DIR = envir_def.EFFICIENT_STAT_PATH+"logs/ImageNet/"
+DATA_PATH = envir_def.EFFICIENT_STAT_PATH+"data/ImageNet/"
 DIM = 3*224*224
 gaussian_gen = lambda N: np.random.normal(size =(N,DIM))
 print(f"Number of GPU used: {len(tf.config.list_physical_devices('GPU'))}")
@@ -71,7 +70,6 @@ for t in tests:
     X_test.append(t[1])
     y_test.append(t[0])
 X_test = np.array(X_test)
-x_test = X_test/255
 y_test= np.array(y_test)
 
 n_repeat = 10
@@ -80,11 +78,11 @@ p_c=10**-15
 T=20
 alpha=1-10**-2
 epsilon_range = [0.015,0.03,0.06]
-
+nb_examples = 5
 if __name__ == "__main__":
     argv = sys.argv[1:]
     try:
-        opts, _ = getopt.getopt(argv,"n:N:T:p:a:e:",["n_repeat=","p_c=","T=","N=","alpha=","epsilon_range=","epsilon="])
+        opts, _ = getopt.getopt(argv,"n:N:T:p:a:e:",["n_repeat=","p_c=","T=","N=","alpha=","epsilon_range=","epsilon=", "nb_examples="])
 
     except getopt.GetoptError as err:
         # print help information and exit:
@@ -107,6 +105,8 @@ if __name__ == "__main__":
             epsilon_range = [float(e) for e in  arg.strip('[').strip(']').split(',')]
         elif opt in ("--epsilon","-e"):
             epsilon_range = [float(arg)]
+        elif opt=="--nb_examples":
+            nb_examples=int(arg)
 
 
 name_method = f"Last Particle|N={N}|p_c={p_c}|T={T}"
@@ -138,13 +138,13 @@ for i in range(len(list_models)):
         del w
         return preds
     t1 = time()-t
-    print(t1)
+    
     y_pred_test = np.argmax(logits,1)
-    print('ok')
+    
     test_correct = y_pred_test==y_test[:100]
-    print(f'Accuracy:{test_correct.mean()}')
+    print(f'Accuracy of model {model_names[i]} on test data:{test_correct.mean()}')
     true_indices = np.where(y_pred_test==y_test[:100])[0]
-    nb_examples = 5
+    
     nb_systems = nb_examples
     big_batch_size= 128
     x_test, Y_test = X_test[true_indices][:nb_examples], y_test[true_indices][:nb_examples]
@@ -168,6 +168,14 @@ for i in range(len(list_models)):
             aggr_results.append(local_result)
             avg_ = (count-1)/count*avg_ + (1/count)*t1
             print(f'Run {k} on network {model_name} for epsilon={epsilon} finished... \n (RUN {count}/{TOTAL_RUN}, Avg. time per run:{avg_}) ')
+            eta_ = ((TOTAL_RUN-count)*avg_)/3600
+            hours = int(eta_)
+            minutes = (eta_*60) % 60
+            seconds = (eta_*3600) % 60
+
+            print("ETA %d:%02d.%02d" % (hours, minutes, seconds))
+            
+
 
         aggr_results = np.array(aggr_results)
         p_estimates = np.vstack(aggr_results[:,-1])

@@ -1,2 +1,6 @@
 data/MNIST/mnist.npz
 .vscode/settings.json
+data/MNIST/test_nets
+logs/acasxu/eran_logs
+logs/MNIST/eran_logs
+data/ImageNet

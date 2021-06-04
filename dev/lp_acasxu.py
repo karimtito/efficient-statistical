@@ -22,8 +22,9 @@ n_repeat = 10
 N= 2
 p_c=10**-50
 T=40
-alpha=1-10**-3
+alpha=1-1e-3
 index_properties = np.arange(1,6)
+verb=0
 
 if __name__ == "__main__":
     argv = sys.argv[1:]
@@ -49,6 +50,9 @@ if __name__ == "__main__":
             p_c= float(arg)
         elif opt=="--properties":
             index_properties=[int(e) for e in  arg.strip('[').strip(']').split(',')]
+        elif opt in ("--verbose", "-v"):
+            verb = float(arg)
+
 
 
 name_method = f"Last Particle|N={N}|p_c={p_c}|T={T}"
@@ -66,7 +70,7 @@ for net_name in os.listdir(nets_path):
     clean_name = net_name.split('.')[0]
     for j in index_properties:
         local_score = acasxu_scores[j-1]
-        input_file = f'../data/acasxu/specs/acasxu_prop_{j}_input_prenormalized.txt'
+        input_file = envir_def.EFFICIENT_STAT_PATH+f'data/acasxu/specs/acasxu_prop_{j}_input_prenormalized.txt'
         input_con= read_acasxu_input_file(input_file, verbose = 1)
         total_score_function = lambda X: local_score(onnx_model(input_transformer_acasxu(X,input_con)))
         aggr_results = []
@@ -80,6 +84,13 @@ for net_name in os.listdir(nets_path):
             aggr_results.append(local_result)
             avg_ = (count-1)/count*avg_ + (1/count)*t1
             print(f'Run {i+1} on network {clean_name} for property {j} is over (RUN {count}/{TOTAL_RUN}, Avg. time per run:{avg_}) ')
+            eta_ = ((TOTAL_RUN-count)*avg_)/3600
+            hours = int(eta_)
+            minutes = (eta_*60) % 60
+            seconds = (eta_*3600) % 60
+
+            print("ETA %d:%02d.%02d" % (hours, minutes, seconds))
+            
 
         aggr_results = np.array(aggr_results)
         p_estimates = aggr_results[:,-1]

@@ -27,11 +27,14 @@ N=2
 p_c=10**-40
 T=50
 alpha=1-10**-4
-epsilon_range = [0.1,0.2,0.3]
+epsilon_range = [0.015,0.03,0.06]
+verb=0
+
 if __name__ == "__main__":
     argv = sys.argv[1:]
     try:
-        opts, _ = getopt.getopt(argv,"n:N:T:p:a:",["n_repeat=","p_c=","T=","N=","alpha=","epsilon_range=","epsilon="])
+        long_opts = ["n_repeat=","p_c=","T=","N=","alpha=","epsilon_range=","epsilon=","verbose="]
+        opts, _ = getopt.getopt(argv,"n:N:T:p:a:v:", longopts=long_opts)
 
     except getopt.GetoptError as err:
         # print help information and exit:
@@ -54,6 +57,9 @@ if __name__ == "__main__":
             epsilon_range = [float(e) for e in  arg.strip('[').strip(']').split(',')]
         elif opt=="--epsilon":
             epsilon_range = [float(arg)]
+        elif opt in ("--verbose", "-v"):
+            verb = float(arg)
+
 
 
 name_method = f"Last Particle|N={N}|p_c={p_c}|T={T}"
@@ -106,13 +112,21 @@ for net_name in os.listdir(NETS_DIR):
             count+=1
             print(f'Run {k} on network {model_name} for epsilon={epsilon} started... \n (RUN {count}/{TOTAL_RUN}, Avg. time per run:{avg_}) ')
             t0= time()
-            p_est, s_out = ImportanceSplittingLpBatch(gen =gaussian_gen, nb_system=nb_systems,N=N,  s=1.5, kernel_b = batch_normal_kernel,h_big = total_score_big, h=total_score,N=N, tau=0, p_c=p_c, T=T,
-    alpha_test = alpha , p_c = p_c, verbose = 0,check_every=5, accept_ratio=0.25,  reject_thresh = 0.99, reject_forget_rate =0.9, gain_forget_rate=0.9, fast_d=3)
+            p_est, s_out = ImportanceSplittingLpBatch(gen =gaussian_gen, nb_system=nb_systems,  s=1, kernel_b = batch_normal_kernel,h_big = total_score_big, h=total_score,
+            N=N, tau=0, p_c=p_c, T=T, alpha_test = alpha ,  verbose = verb,check_every=5, accept_ratio=0.25,  reject_thresh = 0.99, 
+            reject_forget_rate =0.9, gain_forget_rate=0.9, fast_d=3)
             t1=time()-t0
             local_result = [t1, s_out['Cert'], s_out['Calls'],p_est]
             aggr_results.append(local_result)
             avg_ = (count-1)/count*avg_ + (1/count)*t1
-            print(f'Run {k} on network {model_name} for epsilon={epsilon} finished... \n (RUN {count}/{TOTAL_RUN}, Avg. time per run:{avg_}) ')
+            print(f'Run {k} on network {model_name} for epsilon={epsilon} finished... \n (RUN {count}/{TOTAL_RUN}, Avg. time per run:{avg_})  ')
+            eta_ = ((TOTAL_RUN-count)*avg_)/3600
+            hours = int(eta_)
+            minutes = (eta_*60) % 60
+            seconds = (eta_*3600) % 60
+
+            print("ETA %d:%02d.%02d" % (hours, minutes, seconds))
+            
 
         aggr_results = np.array(aggr_results)
         p_estimates = np.vstack(aggr_results[:,-1])
