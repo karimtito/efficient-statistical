@@ -8,7 +8,7 @@ using the pip
 
 
 
-## Runing the papers experiments 
+## Running the papers experiments 
 Implementation and experiments for the paper "Efficient Statistical Assessment of Neural Network Corruption Robustness"
 Experiment j of the paper can be run using the associated exp_5_{j}.py script. 
 By default, this will run both Last Particle and ERAN with pre-selected parameters used for the paper. It is also possible to only run the Last Particle or ERAN method using the check_eran and check_lp options.
