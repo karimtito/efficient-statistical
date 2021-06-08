@@ -3,8 +3,8 @@
 This code was tested on a Ubuntu 20.04 system with Python 3.7.9..
 The python essential requirements are TensorFlow (v2), numpy, scipy and pandas.
 To run experiments on the ACAS-Xu data set the onnx and onnxruntime libraries are also needed.
-All the explicit requirements are list in the requirements.txt and can be directly installed/check 
-using the pip 
+All the explicit requirements are listed in the requirements.txt and can be directly installed/check 
+using the pip command. 
 
 
 
